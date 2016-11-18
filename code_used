@@ -12,12 +12,14 @@ wc -l SRR2872290  #to make sure that files loaded appropriately and that the for
 wc -l SRR2872294
 wc -l SRR2872280
 wc -l SRR2872287
+
 qrsh -pe threads 2 -l mem=4G
 cd Collins_project
 mkdir analysis
 cd analysis
 mkdir 1_fastq
 cd 1_fastq
+
 fastq -t 2 -o . ../../SRR2872280_1.fastq  #to ensure quality and complete data
 fastq -t 2 -o . ../../SRR2872280_2.fastq  #to ensure quality and complete data
 fastq -t 2 -o . ../../SRR2872287_1.fastq  #to ensure quality and complete data
@@ -26,16 +28,60 @@ fastq -t 2 -o . ../../SRR2872290_1.fastq  #to ensure quality and complete data
 fastq -t 2 -o . ../../SRR2872290_2.fastq  #to ensure quality and complete data
 fastq -t 2 -o . ../../SRR2872294_1.fastq  #to ensure quality and complete data
 fastq -t 2 -o . ../../SRR2872294_2.fastq  #to ensure quality and complete data
+
 cd ..
 module load mothur
 
 #create stability.files in nano using a tab delineated format; Samples were labeled as follows 6) P1C6, 9) P1C9, 19) P1S19, and 26) P1S26.
 
+#create oligo file with primers in nano as well using the following commands
+nano pcrTest.oligos
+primer AGAGTTTGATCCTGGCTCAG TACGGRAGGCAGCAG ##the reverse primer listed here is the reverse compliment
+
 mothur  ##the following commands should be in mothur>
 
 set.dir(input=~/Collins_project, output=~/Collins_project/analysis/mothur_results)
+
 make.contigs(file=stability.files, processors=4)
+
 summary.seqs(fasta=stability.trim.contigs.fasta)
+
 screen.seqs(fasta=stability.trim.contigs.fasta, group=stability.contigs.groups, maxambig=0)
+
 unique.seqs(fasta=stability.trim.contigs.good.fasta)
+
 count.seqs(name=stability.trim.contigs.good.names, group=stability.contigs.good.groups)
+
+##in order to get the start and end points for the pcr.seqs command use an ecoli to align to.  in this case I called the sequence ecoli_v1.fasta and created the file in nano. the sequence is as follows: 
+##easiest to perform this in a second terminal that is not running mothur
+>ecoli_v1.fasta
+AGTTTGATCATGGCTCAGATTGAACGCTGGCGGCAGGCCTAACACATGCAAGTCGAACGGTAACAGGAAG
+CAGCTTGCTGCTTTGCTGACGAGTGGCGGACGGGTGAGTAATGTCTGGGAAACTGCCTGATGGAGGGGGA
+TAACTACTGGAAACGGTAGCTAATACCGCATAACGTCGCAAGCACAAAGAGGGGGACCTTAGGGCCTCTT
+GCCATCGGATGTGCCCAGATGGGATTAGCTAGTAGGTGGGGTAACGGCTCACCTAGGCGACGATCCCTAG
+CTGGTCTGAGAGGATGACCAGCAACACTGGAACTGAGACACGGTCCAGACTCCTACGGGAGGCAGCAG
+
+##in mothur
+pcr.seqs(fasta=~/Collins_project/analysis/mothur_results/silva.bacteria/silva.bacteria.fasta)
+
+align.seqs(fasta=ecoli_v1.fasta, reference=silva.bacteria/silva.bacteria.fasta)
+
+summary.seqs(fasta=ecoli_v1.align) ##this will give start and end points which you will use in the next step
+
+pcr.seqs(fasta=silva.bacteria/silva.bacteria.fasta, start=1044, end=6426, keepdots=F, inputdir=~/Collins_project)
+
+align.seqs(fasta=stability.trim.contigs.good.unique.fasta, reference=silva.v1.fasta)
+
+summary.seqs(fasta=stability.trim.contigs.good.unique.align, count=stability.trim.contigs.good.count_table)
+
+screen.seqs(fasta=stability.trim.contigs.good.unique.align, count=stability.trim.contigs.good.count_table, summary=stability.trim.contigs.good.unique.summary, start=2, end=5382, maxhomop=8)
+
+filter.seqs(fasta=stability.trim.contigs.good.unique.good.align, vertical=T, trump=.)
+
+unique.seqs(fasta=stability.trim.contigs.good.unique.good.filter.fasta, count=stability.trim.contigs.good.good.count_table)
+
+pre.cluster(fasta=stability.trim.contigs.good.unique.good.filter.unique.fasta, count=stability.trim.contigs.good.unique.good.filter.count_table, diffs=2)
+
+chimera.uchime(fasta=stability.trim.contigs.good.unique.good.filter.unique.precluster.fasta, count=stability.trim.contigs.good.unique.good.filter.unique.precluster.count_table, dereplicate=t)
+
+remove.seqs(fasta=stability.trim.contigs.good.unique.good.filter.unique.precluster.fasta, accnos=stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.accnos)
