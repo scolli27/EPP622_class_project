@@ -108,8 +108,24 @@ make.shared(list=~/Collins_project/analysis/mothur_results/stability.trim.contig
 
 classify.otu(list=~/Collins_project/analysis/mothur_results/stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.list, count=~/Collins_project/analysis/mothur_results/stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.pick.pick.count_table, taxonomy=~/Collins_project/analysis/mothur_results/stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.silva.wang.taxonomy, label=0.03)
 
+##analysis
 system(mv ~/Collins_project/analysis/mothur_results/stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.shared stability.an.shared)
 
 system(mv ~/Collins_project/analysis/mothur_results/stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.0.03.cons.taxonomy stability.an.cons.taxonomy)
+
+count groups(shared=stability.an.shared)
+
+sub.sample(shared=stability.an.shared, size=550)
+
+##alpha diversity
+rarefaction.single(shared=stability.an.shared, calc=sobs, freq=100)
+
+summary.single(shared=stability.an.shared, calc=nseqs-coverage-sobs-invsimpson, subsample=597)
+
+##beta diversity
+heatmap.bin(shared=stability.an.0.30.subsample.shared, scale=log2, numotu=50)
+
+dist.shared(shared=stability.an.shared, calc=thetayc-jclass, subsample=550)
+
 
 
