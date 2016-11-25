@@ -104,5 +104,12 @@ cluster(column=~/Collins_project/analysis/mothur_results/stability.trim.contigs.
 
 cluster.split(fasta=~/Collins_project/analysis/mothur_results/stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.fasta, count=~/Collins_project/analysis/mothur_results/stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.pick.pick.count_table, taxonomy=~/Collins_project/analysis/mothur_results/stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.silva.wang.taxonomy, splitmethod=classify,taxlevel=4, cutoff=0.15)
 
+make.shared(list=~/Collins_project/analysis/mothur_results/stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.list, count=~/Collins_project/analysis/mothur_results/stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.pick.pick.count_table, label=0.03)
+
+classify.otu(list=~/Collins_project/analysis/mothur_results/stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.list, count=~/Collins_project/analysis/mothur_results/stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.pick.pick.count_table, taxonomy=~/Collins_project/analysis/mothur_results/stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.silva.wang.taxonomy, label=0.03)
+
+system(mv ~/Collins_project/analysis/mothur_results/stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.shared stability.an.shared)
+
+system(mv ~/Collins_project/analysis/mothur_results/stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.0.03.cons.taxonomy stability.an.cons.taxonomy)
 
 
